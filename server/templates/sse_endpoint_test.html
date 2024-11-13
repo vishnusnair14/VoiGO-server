@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Sent Events TEST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        #sse-data {
+            width: 80%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        .sse-entry {
+            margin-bottom: 10px;
+        }
+        .sse-field {
+            font-weight: bold;
+            color: #333;
+        }
+        .sse-value {
+            margin-left: 10px;
+            color: #555;
+        }
+        button {
+            background: #2196f3;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+        }
+        button:hover:enabled {
+            background: #1976d2;
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .input-container input {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+<h1>Server Sent Events Test</h1>
+<div class="input-container">
+    <input type="text" id="user-id" placeholder="Enter User ID">
+    <input type="text" id="order-id" placeholder="Enter Order ID">
+</div>
+<button onclick="startSSE()">Start</button>
+<button onclick="stopSSE()" disabled>Stop</button>
+<div id="sse-data"></div>
+
+<script>
+    let eventSource;
+    const sseData = document.getElementById('sse-data');
+
+    function createOrUpdateSseFields(fields) {
+        // Remove all existing content
+        sseData.innerHTML = '';
+
+        for (const [key, value] of Object.entries(fields)) {
+            // Create a new container for each field
+            const fieldContainer = document.createElement('div');
+            fieldContainer.className = 'sse-entry';
+            fieldContainer.id = key;
+
+            const field = document.createElement('span');
+            field.className = 'sse-field';
+            field.textContent = key + ':';
+
+            const fieldValue = document.createElement('span');
+            fieldValue.className = 'sse-value';
+            fieldValue.textContent = value;
+            fieldValue.id = key + '-value';
+
+            fieldContainer.appendChild(field);
+            fieldContainer.appendChild(fieldValue);
+            sseData.appendChild(fieldContainer);
+        }
+        sseData.scrollTop = sseData.scrollHeight;
+    }
+
+    function startSSE() {
+        const userId = document.getElementById('user-id').value;
+        const orderId = document.getElementById('order-id').value;
+        if (!userId || !orderId) {
+            alert('Please enter both User ID and Order ID');
+            return;
+        }
+        eventSource = new EventSource(`/stream/${userId}/${orderId}`);
+        eventSource.onmessage = event => {
+            const data = JSON.parse(event.data);
+            createOrUpdateSseFields(data);
+        };
+        document.querySelector('button[onclick="startSSE()"]').disabled = true;
+        document.querySelector('button[onclick="stopSSE()"]').disabled = false;
+    }
+
+    function stopSSE() {
+        if (eventSource) {
+            eventSource.close();
+        }
+        document.querySelector('button[onclick="startSSE()"]').disabled = false;
+        document.querySelector('button[onclick="stopSSE()"]').disabled = true;
+    }
+</script>
+</body>
+</html>

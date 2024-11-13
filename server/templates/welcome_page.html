@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome VoiGO</title>
+    <link rel="icon" href='/static/favicon.ico'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            background-color: #e0f7fa;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .banner {
+            background-color: #00796b;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .status-container {
+            padding: 20px;
+            border: 2px solid #004d40;
+            border-radius: 0 0 15px 15px;
+            background-color: #f1f8e9;
+        }
+
+        h1 {
+            color: #004d40;
+            font-size: 1.5em;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            25% {
+                opacity: 0;
+            }
+        }
+
+        p {
+            font-size: 1em;
+            color: #555555;
+            margin: 10px 0;
+        }
+
+        .status-icon {
+            font-size: 2em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #757575;
+        }
+
+        @media (max-width: 600px) {
+            .banner {
+                font-size: 1.2em;
+            }
+
+            .status-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .status-icon {
+                font-size: 1.5em;
+            }
+
+            p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="banner">
+        vishnustechnologies
+    </div>
+    <div class="status-container">
+        <div class="status-icon">✔️</div>
+        <h1>SERVER ONLINE</h1>
+        <p>VoiGO servers are currently running and accessible.</p>
+        <p>All systems are operational. For support, contact us at <a href="mailto:vishnustechnologies@gmail.com">vishnustechnologies@gmail.com</a>
+        </p>
+    </div>
+    <div class="footer">
+        &copy; 2024 vishnustechnologies. All rights reserved.
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>WebSocket Test Page</h1>
+    <div class="form-group">
+        <label for="client_id">Select Client ID:</label>
+        <select id="client_id">
+            {% for client in clients %}
+            <option value="{{ client.order_client_id }}">{{ client.order_client_id }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="location">Location:</label>
+        <input type="text" id="location">
+    </div>
+    <div class="form-group">
+        <label for="type">Type:</label>
+        <input type="text" id="type">
+    </div>
+    <button onclick="sendWebSocketMessage()">Send Message</button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Automatically set the current date and time in the update-time field
+        const updateTimeField = document.getElementById('update_time');
+        const now = new Date();
+        updateTimeField.value = now.toISOString().slice(0, 19).replace('T', ' ');
+    });
+
+    function sendWebSocketMessage() {
+        const clientId = document.getElementById('client_id').value;
+        const location = document.getElementById('location').value;
+        const type = document.getElementById('type').value;
+
+        const data = {
+            user_id: clientId,
+            location: location,
+            type: type
+        };
+
+        fetch('{% url "sent_ws_message" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // CSRF token for security
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('WebSocket message sent successfully.');
+            } else {
+                console.error('Failed to send WebSocket message.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+</body>
+</html>

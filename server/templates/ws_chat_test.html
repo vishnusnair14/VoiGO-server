@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+            flex-direction: column;
+        }
+        .chat-container {
+            width: 60%;
+            max-width: 800px;
+            min-width: 300px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header, .chat-footer {
+            background: #008080;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            max-width: 75%;
+        }
+        .message.sent {
+            background-color: #008080;
+            color: #fff;
+            align-self: flex-end;
+        }
+        .message.received {
+            background-color: #E1E1E1;
+            color: #000;
+            align-self: flex-start;
+        }
+        .chat-footer input {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .chat-footer button {
+            padding: 10px 15px;
+            background: #006666;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .room-container {
+            padding: 15px;
+            text-align: center;
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .room-container input {
+            width: 60%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .room-container button {
+            padding: 10px 15px;
+            background: #008080;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .status-indicator {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .status-indicator.success {
+            color: green;
+        }
+        .status-indicator.failure {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="room-container">
+        <input type="text" id="room-id-input" placeholder="Enter room ID">
+        <input type="text" id="client-id-input" placeholder="Enter client ID">
+        <input type="text" id="client-type-input" placeholder="Enter client type">
+        <button onclick="connectToRoom()">Connect</button>
+        <span id="status-indicator" class="status-indicator"></span>
+    </div>
+    <div class="chat-header">
+        <h2>WebSocket Chat Client</h2>
+    </div>
+    <div id="chat-body" class="chat-body">
+        <!-- Messages will be displayed here -->
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    let ws;
+    let clientID;
+
+    function connectToRoom() {
+        const roomID = document.getElementById('room-id-input').value.trim();
+        clientID = document.getElementById('client-id-input').value.trim();
+        const clientType = document.getElementById('client-type-input').value.trim();
+        const statusIndicator = document.getElementById('status-indicator');
+
+        if (roomID && clientID && clientType) {
+            if (ws) {
+                ws.close();
+            }
+
+            ws = new WebSocket(`ws://${window.location.host}/ws/chat/${roomID}/${clientID}/${clientType}/`);
+
+            ws.onopen = () => {
+                statusIndicator.textContent = 'Connected';
+                statusIndicator.className = 'status-indicator success';
+                console.log('WebSocket connection opened');
+            };
+
+            ws.onclose = () => {
+                statusIndicator.textContent = 'Disconnected';
+                statusIndicator.className = 'status-indicator failure';
+                console.log('WebSocket connection closed');
+            };
+
+            ws.onerror = () => {
+                statusIndicator.textContent = 'Connection Error';
+                statusIndicator.className = 'status-indicator failure';
+                console.log('WebSocket connection error');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const message = data.message;
+                const receivedUserId = data.user_id;
+                const receivedUserName = data.user_name;
+                const clientType = data.client_type;
+
+                // Do not display the message if it was sent by the current client
+                if (receivedUserId !== clientID) {
+                    // Display the received message
+                    const messageContainer = document.createElement('div');
+                    messageContainer.classList.add('message', 'received');
+                    messageContainer.textContent = `${receivedUserName} (${clientType}): ${message}`;
+                    document.getElementById('chat-body').appendChild(messageContainer);
+                    scrollToBottom();
+                }
+            };
+        }
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        const clientType = document.getElementById('client-type-input').value.trim();
+
+        if (message && ws) {
+            const currentTime = new Date();
+            const hours = currentTime.getHours();
+            const minutes = currentTime.getMinutes();
+            const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')}${hours >= 12 ? 'PM' : 'AM'}`;
+
+            const data = JSON.stringify({
+                user_id: clientID,
+                user_name: 'ws-client:web',
+                message: message,
+                client_type: clientType,
+                message_time: formattedTime,
+            });
+
+            ws.send(data);
+
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message', 'sent');
+            messageContainer.textContent = `Client (${clientType}): ${message}`;
+            document.getElementById('chat-body').appendChild(messageContainer);
+            scrollToBottom();
+
+            // Clear the input field
+            messageInput.value = '';
+        }
+    }
+
+    function scrollToBottom() {
+        const chatBody = document.getElementById('chat-body');
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    document.getElementById('message-input').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+</body>
+</html>
