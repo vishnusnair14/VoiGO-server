@@ -25,14 +25,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%#tpiy69cdle!8ip83bz%0$s13eis1rli3h(qe_n8&-1m&0*0-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+# ALLOWED_HOSTS = [
+#     'localhost',
+#     '127.0.0.1',
+#     'big-terminally-lacewing.ngrok-free.app'
+# ]
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'big-terminally-lacewing.ngrok-free.app'
+    '*'
 ]
-
 # Application definition
 INSTALLED_APPS = [
     'channels',

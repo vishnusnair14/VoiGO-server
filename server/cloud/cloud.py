@@ -234,7 +234,7 @@ def _remove_token_from_db(token_type: str, dp_id: str) -> bool:
             return True
         except Exception as ew:
 
-            log.error("Exception occurred: ", ew)
+            log.error(f"Exception occurred:{ew}")
             return False
     elif token_type == KEYWORD.user:
         try:
@@ -972,6 +972,7 @@ def get_saved_address(request):
             if address_data:
                 json_data = {
                     'status': 'success',
+                    'is_address_found': True,
                     'message': 'Addresses retrieved successfully.',
                     'address_data': address_data
                 }
@@ -979,9 +980,9 @@ def get_saved_address(request):
                  ("All saved address:", json_data))
                 return json_data
             else:
-                return {'status': 'error', 'message': 'No addresses found'}
+                return {'status': 'error', 'is_address_found': False, 'message': 'No addresses found'}
         except Exception as ey:
-            return {'status': 'error', 'message': 'An error occurred', 'exception': str(ey)}
+            return {'status': 'error', 'is_address_found': False, 'message': 'An error occurred', 'exception': str(ey)}
 
 
 def get_shop_items(item_type, shop_id, shop_state, shop_district):
@@ -1331,6 +1332,7 @@ def fetch_order_data(request):
             user_phno = request.POST.get('user_phno')
             order_key = request.POST.get('order_key')
             order_type = request.POST.get('order_type')
+            shop_id = request.POST.get('shop_id')
 
             order_info_doc_ref = (cloudFirestore.collection("DeliveryPartners").document(dp_id)
                                   .collection("currentOrder")
@@ -1367,33 +1369,41 @@ def fetch_order_data(request):
                 info_data['manual_cart_product_data'] = manual_cart_product_data
 
                 if order_type == 'obv':
-                    if len(info_data['user_phno']) == 10:
+                    if len(user_phno) == 10:
                         addr_data = get_address_data(user_id, user_phno)
-                        store_data, all_shop_coords = (
-                            fetch_store_pref_data(user_id, info_data['user_phno'],
-                                                  addr_data.get('state'), addr_data.get('district')))
+
+                        # store_data, all_shop_coords = (
+                        #     fetch_store_pref_data(user_id, info_data['user_phno'],
+                        #                           addr_data.get('state'), addr_data.get('district')))
+
+                        shop_data = get_shop_data1(shop_id, addr_data.get('state'), addr_data.get('district'))
+                        print(shop_data)
 
                         # Convert to JSON array
                         store_pref_data_list = [
                             {
-                                'shop_district': shop_info['shop_district'],
-                                'shop_street': shop_info['shop_street'],
+                                'shop_district': shop_data['shop_district'],
+                                'shop_street': shop_data['shop_street'],
                                 'shop_id': shop_id,
-                                "shop_email": shop_info['shop_email'],
-                                "shop_phone": shop_info['shop_phone'],
-                                "shop_image_url": shop_info['shop_image_url'],
-                                "shop_pincode": shop_info['shop_pincode'],
+                                "shop_email": shop_data['shop_email'],
+                                "shop_phone": shop_data['shop_phone'],
+                                "shop_image_url": shop_data['shop_image_url'],
+                                "shop_pincode": shop_data['shop_pincode'],
                                 # "geohash": shop_info['geohash'],
-                                "shop_lat": shop_info['shop_loc_coords']['latitude'],
-                                "shop_lon": shop_info['shop_loc_coords']['longitude'],
-                                "shop_state": shop_info['shop_state'],
-                                "shop_name": shop_info['shop_name'],
-                                "shop_address": shop_info['shop_address'],
-                                "shop_preference": shop_info['shop_preference'],
-                                "distance_km": 0,  # You can calculate the distance if needed
+                                "shop_lat": shop_data['shop_loc_coords'].latitude,
+                                "shop_lon": shop_data['shop_loc_coords'].longitude,
+                                "shop_state": shop_data['shop_state'],
+                                "shop_name": shop_data['shop_name'],
+                                "shop_address": shop_data['shop_address'],
+                                # "shop_preference": shop_data['shop_preference'],
+                                "distance_km": utils.haversine(addr_data.get('address_lat'),
+                                                               addr_data.get('address_lon'),
+                                                               shop_data['shop_loc_coords'].latitude,
+                                                               shop_data['shop_loc_coords'].longitude),
+                                # You can calculate the distance if needed
                                 "displacement": 0  # You can calculate the displacement if needed
                             }
-                            for shop_id, shop_info in store_data.items()
+                            # for shop_id, shop_info in store_data.items()
                         ]
 
                         info_data['store_pref_data'] = store_pref_data_list
@@ -1403,7 +1413,7 @@ def fetch_order_data(request):
                 response_data = {
                     'is_success': True,
                     'status': 'success',
-                    'order_type': info_data['order_type'],
+                    'order_type': order_type,
                     'data': info_data
 
                 }

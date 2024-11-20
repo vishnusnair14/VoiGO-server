@@ -389,7 +389,7 @@ def compute_route_matrix(lat1: str, lon1: str, lat2: str, lon2: str,
 
     headers = {
         "Content-Type": "application/json",
-        "X-Goog-Api-Key": constants.GOOGLE_API_KEY,
+        "X-Goog-Api-Key": constants.GOOGLE_API_KEY_RICHI,
         "X-Goog-FieldMask": "originIndex,destinationIndex,duration,distanceMeters,status,condition"
     }
 

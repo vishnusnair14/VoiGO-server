@@ -236,10 +236,10 @@ class DeliveryPartnerRegistration(BaseRegistration):
 
     def register_account(self, request):
         # Retrieve image file
-        image_file = request.FILES.get('image')
+        # image_file = request.FILES.get('image')
 
-        if not image_file:
-            return JsonResponse({'status': 'error', 'message': 'No image provided'})
+        # if not image_file:
+        #     return JsonResponse({'status': 'error', 'message': 'No image provided'})
 
         # Parse the JSON request body
         user_data = json.loads(request.POST.get('account_data'))
@@ -259,10 +259,10 @@ class DeliveryPartnerRegistration(BaseRegistration):
             # Upload image to Firebase Storage
             log.info("Setting profile...")
             bucket = storage.bucket()
-            blob = bucket.blob(f'profile_photos/{uid}/{image_file.name}')
-            blob.upload_from_filename('images/' + image_file.name)
-            blob.make_public()
-            image_url = blob.public_url
+            # blob = bucket.blob(f'profile_photos/{uid}/{image_file.name}')
+            # blob.upload_from_filename('images/' + image_file.name)
+            # blob.make_public()
+            # image_url = blob.public_url
         except Exception as e:
             log.error(f"Exception occurred at:{__file__}.DeliveryPartnerRegistration.register_account {str(e)}")
             return {'status': False, 'message': str(e)}
@@ -282,7 +282,7 @@ class DeliveryPartnerRegistration(BaseRegistration):
                 'user_email': user_email,
                 'user_phone': user_phone,
                 'user_pincode': user_pincode,
-                'user_profile_image_url': image_url,
+                'user_profile_image_url': "null",
                 'user_state': user_state,
                 'user_district': user_district,
             }
@@ -294,7 +294,8 @@ class DeliveryPartnerRegistration(BaseRegistration):
                 'user_pincode': user_pincode,
             }
 
-            if self.update_user_profile(user_id=uid, new_display_name=username, photo_url=image_url):
+            if self.update_user_profile(user_id=uid, new_display_name=username,
+                                        photo_url="https://firebasestorage.googleapis.com/v0/b/intelli-cart.appspot.com/o/app_data%2Fdelivery_image.png?alt=media&token=8d0b78d2-0b86-4cc2-9f03-c87df10f6556"):
                 log.info("Profile updated.")
 
             # if self.send_verification_email(user.email):
@@ -303,16 +304,16 @@ class DeliveryPartnerRegistration(BaseRegistration):
             user_data_ref.set(shop_info_payload, merge=True)
             # location_map_ref.set(location_map_info_payload, merge=True)
 
-            inst = UploadedImage.objects.filter(name='images/' + image_file.name)
-            log.info('images/' + image_file.name)
-            inst.delete()
+            # inst = UploadedImage.objects.filter(name='images/' + image_file.name)
+            # log.info('images/' + image_file.name)
+            # inst.delete()
             # print(f"Deleted {s} image records.")
 
             try:
                 self.add_user_login_creds_to_db(user_email, user_password, uid)
                 self.add_email_to_array(user.email)
 
-                default_storage.delete(f'images/{image_file.name}')
+                # default_storage.delete(f'images/{image_file.name}')
 
                 return {'status': True, 'message': 'New delivery partner account registered successfully'}
             except Exception as e:

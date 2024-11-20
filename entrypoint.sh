@@ -2,13 +2,13 @@
 
 
 # Run migrations
-/workdir/env/bin/python manage.py migrate
+/app/env/bin/python manage.py migrate
 
 # Start the Huey consumer
-/workdir/env/bin/python manage.py run_huey &
+/app/env/bin/python manage.py run_huey &
 
 # Start Django server
-/workdir/env/bin/python manage.py runserver 0.0.0.0:8000
+/app/env/bin/python manage.py runserver 0.0.0.0:80
 
 
 # Keep the script running

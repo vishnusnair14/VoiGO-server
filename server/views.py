@@ -700,16 +700,16 @@ def registerDeliveryAccount(request):
     if request.method == 'POST':
         delivery_account = DeliveryPartnerRegistration()
         try:
-            log.info("Extracting image file...")
-            _task = ProfileImageUpload(request.POST, request.FILES)
-            if _task.is_valid():
-                _task.save()
-                log.info("Image extraction success")
-                # res = reg_vendor.register_shop(request=request)
-                res = delivery_account.register_account(request)
-                return JsonResponse(res, status=200)
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Invalid form'})
+            # log.info("Extracting image file...")
+            # _task = ProfileImageUpload(request.POST, request.FILES)
+            # if _task.is_valid():
+            #     _task.save()
+            #     log.info("Image extraction success")
+            # res = reg_vendor.register_shop(request=request)
+            res = delivery_account.register_account(request)
+            return JsonResponse(res, status=200)
+            # else:
+            #     return JsonResponse({'status': 'error', 'message': 'Invalid form'})
         except Exception as e:
             log.error(f"Exception occurred at:{__file__}.registerShop {e}")
             return JsonResponse({'status': False, 'message': str(e)}, status=400)
