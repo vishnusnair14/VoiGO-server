@@ -261,7 +261,7 @@ def _get_fcm_access_token():
             scopes=constants.FCM_MSG_SCOPE))
     elif _stage == KEYWORD.production:
         credentials1 = (service_account.Credentials.from_service_account_file(
-            "/workdir/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
+            "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
             scopes=constants.FCM_MSG_SCOPE))
     else:
         credentials1 = (service_account.Credentials.from_service_account_file(
