@@ -70,16 +70,17 @@ _stage: str = config('ENV_MODE', default='development')
 # init. Firebase-Admin-SDK with SA-credentials
 if _stage == KEYWORD.production:
     # use this in production environment
-    cred = credentials.Certificate("/workdir/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
+    cred = credentials.Certificate(
+        "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
 elif _stage == KEYWORD.development:
     # use this in testing
     cred = credentials.Certificate(
-        r"D:\voigo\VoiGO-Server\VoiGO\server\cloud\intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
+        "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
 else:
     log.warning("Unable to retrieve environment mode from .env file, "
                 "proceeding development environment settings as default.")
     cred = credentials.Certificate(
-        r"D:\voigo\VoiGO-Server\VoiGO\server\cloud\intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
+        "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json")
 
 try:
     firebase_admin.initialize_app(cred, {
@@ -257,7 +258,7 @@ def _get_fcm_access_token():
 
     if _stage == KEYWORD.development:
         credentials1 = (service_account.Credentials.from_service_account_file(
-            r"D:\voigo\VoiGo-Server\VoiGO\server\cloud\intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
+            "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
             scopes=constants.FCM_MSG_SCOPE))
     elif _stage == KEYWORD.production:
         credentials1 = (service_account.Credentials.from_service_account_file(
@@ -265,7 +266,7 @@ def _get_fcm_access_token():
             scopes=constants.FCM_MSG_SCOPE))
     else:
         credentials1 = (service_account.Credentials.from_service_account_file(
-            r"D:\voigo\VoiGo-Server\VoiGO\server\cloud\intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
+            "/home/ubuntu/VoiGo-server/server/cloud/intelli-cart-firebase-adminsdk-pz474-68d5753572.json",
             scopes=constants.FCM_MSG_SCOPE))
 
     request = google.auth.transport.requests.Request()
